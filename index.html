@@ -3,133 +3,245 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Online Store Portfolio</title>
+<title>Amazon Style Store</title>
 
 <style>
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #f7f7f7;
+    margin:0;
+    font-family: Arial;
+    background:#f3f3f3;
 }
 
-header {
-    background: #222;
-    color: white;
-    padding: 15px;
-    text-align: center;
+/* NAVBAR */
+.navbar {
+    background:#131921;
+    color:white;
+    display:flex;
+    padding:10px;
+    align-items:center;
+    justify-content:space-between;
+}
+.navbar input {
+    width:50%;
+    padding:8px;
+}
+.navbar button {
+    padding:8px;
+    cursor:pointer;
 }
 
-nav {
-    background: #444;
-    padding: 10px;
-    text-align: center;
-}
-
-nav a {
-    color: white;
-    margin: 10px;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.container {
-    padding: 20px;
-}
-
+/* PRODUCTS GRID */
 .products {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap:15px;
+    padding:20px;
 }
-
 .product {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #ccc;
-    width: 250px;
-    padding: 15px;
-    text-align: center;
+    background:white;
+    padding:10px;
+    border-radius:8px;
+    transition:0.3s;
+}
+.product:hover { transform:scale(1.05); }
+
+.product img { width:100%; }
+
+/* CART PANEL */
+.cart {
+    position:fixed;
+    right:0;
+    top:0;
+    width:300px;
+    background:white;
+    height:100%;
+    padding:10px;
+    box-shadow:-2px 0 10px gray;
+    overflow-y:auto;
 }
 
-.product img {
-    width: 100%;
-    border-radius: 10px;
+/* LOGIN MODAL */
+.modal {
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.5);
+}
+.modal-content {
+    background:white;
+    padding:20px;
+    width:300px;
+    margin:100px auto;
 }
 
-.product h3 {
-    margin: 10px 0;
-}
-
-.price {
-    color: green;
-    font-weight: bold;
-}
-
+/* BUTTON */
 button {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+    background:#007bff;
+    color:white;
+    border:none;
+    padding:8px;
+    margin:5px 0;
 }
 
-footer {
-    background: #222;
-    color: white;
-    text-align: center;
-    padding: 10px;
-    margin-top: 20px;
+/* MOBILE */
+@media(max-width:600px){
+    .navbar input{ width:40%; }
 }
 </style>
-
 </head>
+
 <body>
 
-<header>
-<h1>My Online Store</h1>
-<p>Welcome to my selling portfolio</p>
-</header>
-
-<nav>
-<a href="#">Home</a>
-<a href="#">Products</a>
-<a href="#">Contact</a>
-</nav>
-
-<div class="container">
-<h2>Featured Products</h2>
-
-<div class="products">
-
-<div class="product">
-<img src="https://via.placeholder.com/250" alt="Product 1">
-<h3>Wireless Headphones</h3>
-<p class="price">$45</p>
-<button>Buy Now</button>
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>Mini Amazon</h2>
+    <input type="text" placeholder="Search..." oninput="searchProduct(this.value)">
+    <div>
+        <button onclick="showLogin()">Login</button>
+        <button onclick="toggleCart()">Cart</button>
+    </div>
 </div>
 
-<div class="product">
-<img src="https://via.placeholder.com/250" alt="Product 2">
-<h3>Smart Watch</h3>
-<p class="price">$60</p>
-<button>Buy Now</button>
+<!-- PRODUCTS -->
+<div class="products" id="products"></div>
+
+<!-- CART -->
+<div class="cart" id="cart" style="display:none">
+    <h3>Cart</h3>
+    <div id="cartItems"></div>
+    <h4>Total: $<span id="total">0</span></h4>
+    <button onclick="checkoutWhatsApp()">Checkout (WhatsApp)</button>
 </div>
 
-<div class="product">
-<img src="https://via.placeholder.com/250" alt="Product 3">
-<h3>Bluetooth Speaker</h3>
-<p class="price">$35</p>
-<button>Buy Now</button>
+<!-- LOGIN -->
+<div class="modal" id="loginModal">
+    <div class="modal-content">
+        <h3>Login / Register</h3>
+        <input id="username" placeholder="Username"><br>
+        <input id="password" type="password" placeholder="Password"><br>
+        <button onclick="login()">Login</button>
+        <button onclick="register()">Register</button>
+    </div>
 </div>
 
-</div>
-</div>
+<script>
 
-<footer>
-<p>© 2026 My Online Store | Contact: your@email.com</p>
-</footer>
+/* PRODUCT DATABASE */
+let products = [
+    {id:1, name:"Headphones", price:45, img:"https://via.placeholder.com/200"},
+    {id:2, name:"Smart Watch", price:60, img:"https://via.placeholder.com/200"},
+    {id:3, name:"Laptop", price:500, img:"https://via.placeholder.com/200"},
+    {id:4, name:"Phone", price:300, img:"https://via.placeholder.com/200"}
+];
+
+let cart = [];
+let orders = [];
+
+/* LOAD PRODUCTS */
+function loadProducts(list=products){
+    let html='';
+    list.forEach(p=>{
+        html+=`
+        <div class="product">
+            <{p.img}
+            <h4>${p.name}</h4>
+            <p>$${p.price}</p>
+            <button onclick="addToCart(${p.id})">Add</button>
+        </div>`;
+    });
+    document.getElementById("products").innerHTML = html;
+}
+
+/* SEARCH */
+function searchProduct(q){
+    let filtered = products.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
+    loadProducts(filtered);
+}
+
+/* CART */
+function addToCart(id){
+    let product = products.find(p=>p.id===id);
+    cart.push(product);
+    renderCart();
+}
+
+function renderCart(){
+    let html='';
+    let total=0;
+
+    cart.forEach(item=>{
+        total += item.price;
+        html+=`<p>${item.name} - $${item.price}</p>`;
+    });
+
+    document.getElementById("cartItems").innerHTML=html;
+    document.getElementById("total").innerText=total;
+}
+
+/* TOGGLE CART */
+function toggleCart(){
+    let c = document.getElementById("cart");
+    c.style.display = c.style.display==='none' ? 'block' : 'none';
+}
+
+/* LOGIN SYSTEM (LOCAL) */
+function showLogin(){
+    document.getElementById("loginModal").style.display='block';
+}
+
+function login(){
+    let user = localStorage.getItem("user");
+    alert(user ? "Welcome back "+user : "No account found!");
+}
+
+function register(){
+    let u = document.getElementById("username").value;
+    localStorage.setItem("user", u);
+    alert("Registered!");
+}
+
+/* ORDER TRACKING */
+function createOrder(){
+    let order = {
+        id: Date.now(),
+        status: "Processing"
+    };
+    orders.push(order);
+    localStorage.setItem("orders", JSON.stringify(orders));
+}
+
+function trackOrders(){
+    let data = JSON.parse(localStorage.getItem("orders")) || [];
+    let text = "Orders:\n";
+    data.forEach(o=>{
+        text += `ID: ${o.id} - ${o.status}\n`;
+    });
+    alert(text);
+}
+
+/* WHATSAPP CHECKOUT */
+function checkoutWhatsApp(){
+    let total = document.getElementById("total").innerText;
+    createOrder();
+
+    let msg = "Order Details:%0A";
+    cart.forEach(i=>{
+        msg += `${i.name} - $${i.price}%0A`;
+    });
+    msg += "Total: $" + total;
+
+    let phone = "971XXXXXXXXX"; // YOUR NUMBER
+    let url = `https://wa.me/${phone}?text=${msg}`;
+    window.open(url);
+}
+
+/* INIT */
+loadProducts();
+
+</script>
 
 </body>
 </html>
-
