@@ -112,7 +112,7 @@ button {
 <div class="cart" id="cart" style="display:none">
     <h3>Cart</h3>
     <div id="cartItems"></div>
-    <h4>Total: $<span id="total">0</span></h4>
+    <h4>Total: AED<span id="total">0</span></h4>
     <button onclick="checkoutWhatsApp()">Checkout (WhatsApp)</button>
 </div>
 
@@ -148,7 +148,7 @@ function loadProducts(list=products){
         <div class="product">
             <{p.img}
             <h4>${p.name}</h4>
-            <p>$AED{p.price}</p>
+            <p>AED${p.price}</p>
             <button onclick="addToCart(${p.id})">Add</button>
         </div>`;
     });
@@ -174,7 +174,7 @@ function renderCart(){
 
     cart.forEach(item=>{
         total += item.price;
-        html+=`<p>${item.name} - $AED{item.price}</p>`;
+        html+=`<p>${item.name} - AED${item.price}</p>`;
     });
 
     document.getElementById("cartItems").innerHTML=html;
