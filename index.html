@@ -97,7 +97,7 @@ button {
 
 <!-- NAVBAR -->
 <div class="navbar">
-    <h2>Mini Amazon</h2>
+    <h2>Bro.Cliff’s Online Store</h2>
     <input type="text" placeholder="Search..." oninput="searchProduct(this.value)">
     <div>
         <button onclick="showLogin()">Login</button>
@@ -112,7 +112,7 @@ button {
 <div class="cart" id="cart" style="display:none">
     <h3>Cart</h3>
     <div id="cartItems"></div>
-    <h4>Total: $<span id="total">0</span></h4>
+    <h4>Total: AED<span id="total">0</span></h4>
     <button onclick="checkoutWhatsApp()">Checkout (WhatsApp)</button>
 </div>
 
@@ -147,9 +147,9 @@ function loadProducts(list=products){
         html+=`
         <div class="product">
             <{p.img}
-            <h4>${p.name}</h4>
-            <p>$${p.price}</p>
-            <button onclick="addToCart(${p.id})">Add</button>
+            <h4>AED{p.name}</h4>
+            <p>AEDAED{p.price}</p>
+            <button onclick="addToCart(AED{p.id})">Add</button>
         </div>`;
     });
     document.getElementById("products").innerHTML = html;
@@ -174,7 +174,7 @@ function renderCart(){
 
     cart.forEach(item=>{
         total += item.price;
-        html+=`<p>${item.name} - $${item.price}</p>`;
+        html+=`<p>AED{item.name} - AEDAED{item.price}</p>`;
     });
 
     document.getElementById("cartItems").innerHTML=html;
@@ -217,7 +217,7 @@ function trackOrders(){
     let data = JSON.parse(localStorage.getItem("orders")) || [];
     let text = "Orders:\n";
     data.forEach(o=>{
-        text += `ID: ${o.id} - ${o.status}\n`;
+        text += `ID: AED{o.id} - AED{o.status}\n`;
     });
     alert(text);
 }
@@ -229,12 +229,12 @@ function checkoutWhatsApp(){
 
     let msg = "Order Details:%0A";
     cart.forEach(i=>{
-        msg += `${i.name} - $${i.price}%0A`;
+        msg += `AED{i.name} - AEDAED{i.price}%0A`;
     });
-    msg += "Total: $" + total;
+    msg += "Total: AED" + total;
 
     let phone = "971555120793"; // YOUR NUMBER
-    let url = `https://wa.me/${phone}?text=${msg}`;
+    let url = `https://wa.me/AED{phone}?text=AED{msg}`;
     window.open(url);
 }
 
